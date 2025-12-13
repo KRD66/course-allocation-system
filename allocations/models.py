@@ -11,7 +11,7 @@ class User(AbstractUser):
     full_name = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
-        return self.username
+        return f"{self.username} ({self.get_role_display()})"
 
 class Department(models.Model):
     name = models.CharField(max_length=100)
@@ -48,3 +48,4 @@ class Enrollment(models.Model):
 
     class Meta:
         unique_together = ('student', 'course')
+        
