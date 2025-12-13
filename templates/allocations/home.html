@@ -7,72 +7,254 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: #0f172a;
+            background: #0a0e17;
             color: #e2e8f0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', sans-serif, Arial;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
         }
-        .hero {
-            text-align: center;
-            max-width: 800px;
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 14, 23, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
-        .title {
-            font-size: 5rem;
-            font-weight: 900;
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 800;
             background: linear-gradient(to right, #67e8f9, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
         }
-        .subtitle {
-            font-size: 1.8rem;
-            margin-bottom: 4rem;
-            color: #94a3b8;
+        .nav-link {
+            color: #cbd5e1 !important;
+            font-weight: 500;
+            margin: 0 1rem;
+        }
+        .nav-link:hover {
+            color: #67e8f9 !important;
         }
         .btn-student {
-            background: linear-gradient(to right, #f59e0b, #d97706);
+            background: linear-gradient(to right, #a78bfa, #7c3aed);
             border: none;
-            padding: 1rem 3rem;
-            font-size: 1.3rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);
-            margin: 0 1rem;
+            border-radius: 50px;
+            padding: 0.6rem 1.8rem;
+            font-weight: 600;
         }
         .btn-admin {
+            border: 2px solid #14b8a6;
+            color: #14b8a6;
+            background: transparent;
+            border-radius: 50px;
+            padding: 0.6rem 1.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+        .btn-admin:hover {
+            background: #14b8a6;
+            color: white;
+        }
+        .hero {
+            padding-top: 120px;
+            text-align: center;
+            padding-bottom: 100px;
+        }
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+        .hero-title-main {
+            color: white;
+        }
+        .hero-title-glow {
+            background: linear-gradient(to right, #a78bfa, #67e8f9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 5rem;
+        }
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: #94a3b8;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .btn-demo {
             background: linear-gradient(to right, #14b8a6, #0d9488);
             border: none;
-            padding: 1rem 3rem;
-            font-size: 1.3rem;
+            border-radius: 50px;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 30px rgba(20, 184, 166, 0.4);
+        }
+        .feature-card {
+            background: rgba(30, 41, 59, 0.6);
             border-radius: 1rem;
-            box-shadow: 0 10px 30px rgba(20, 184, 166, 0.4);
-            margin: 0 1rem;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem;
+            transition: transform 0.3s;
         }
-        .btn-student:hover, .btn-admin:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        .feature-card:hover {
+            transform: translateY(-10px);
         }
-        .register-link {
-            margin-top: 3rem;
-            font-size: 1.1rem;
+        .icon-large {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .section-title {
+            font-size: 3rem;
+            text-align: center;
+            margin: 4rem 0 3rem;
+        }
+        .process-card {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1rem;
+        }
+        .process-number {
+            width: 60px;
+            height: 60px;
+            background: #7c3aed;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+        .footer {
+            background: #0a0e17;
+            padding: 2rem 0;
+            margin-top: 5rem;
+            border-top: 1px solid #334155;
+            text-align: center;
+            color: #64748b;
         }
     </style>
 </head>
 <body>
-    <div class="hero">
-        <h1 class="title">AuraAllocate</h1>
-        <p class="subtitle">Intelligent Course Allocation System</p>
-        
-        <div class="d-flex gap-4 justify-content-center flex-wrap">
-            <a href="{% url 'login' %}" class="btn btn-student text-white">Student Login</a>
-            <a href="/admin/" class="btn btn-admin text-white">Admin Portal</a>
+
+    <!-- Fixed Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">AuraAllocate</a>
+            <div class="mx-auto">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="#">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">System Map</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <a href="{% url 'login' %}" class="btn btn-student text-white">Student Login</a>
+                <a href="/admin/" class="btn btn-admin">Admin Portal</a>
+            </div>
         </div>
-        
-        <p class="register-link text-muted">
-            New user? <a href="{% url 'register' %}" style="color: #67e8f9; text-decoration: underline;">Create an account here</a>
-        </p>
-    </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title hero-title-main">Intelligent Course</h1>
+            <h1 class="hero-title hero-title-glow">Allocation.</h1>
+            <h1 class="hero-title hero-title-glow">Unmatched Fairness.</h1>
+            <p class="hero-subtitle">
+                AuraAllocate uses advanced **optimization algorithms** and **student-centric data** 
+                to design and implement the most efficient and equitable course distribution possible.
+            </p>
+            <button class="btn btn-demo text-white">Request a Demo</button>
+            <button class="btn border-0 text-white mx-3">Explore System Map ↓</button>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="container">
+        <h2 class="section-title">Built on Intelligence and Transparency</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-large text-info">⚡</div>
+                    <h4>Optimized Matching</h4>
+                    <p>Our **Max-Flow algorithm** balances student preferences, prerequisite checks, and capacity constraints for maximum satisfaction.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-large text-primary">📊</div>
+                    <h4>Live Insight Dashboard</h4>
+                    <p>Administrators get instant views of **course demand**, utilization rates, and equity metrics *before* the final allocation is published.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-large text-warning">🔄</div>
+                    <h4>Easy Data Sync</h4>
+                    <p>Built with API-first principles, AuraAllocate easily connects with existing **Student Information Systems (SIS)** via secure endpoints.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Flow -->
+    <section class="container my-5">
+        <h2 class="section-title">The Core Allocation Process</h2>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="process-card">
+                    <div class="process-number">1</div>
+                    <h4>Admin Setup (Modules 3–5)</h4>
+                    <p>Departments, Courses, and Lecturers are defined and configured by the administrator.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="process-card">
+                    <div class="process-number">2</div>
+                    <h4>Course Assignment (Module 6)</h4>
+                    <p>Courses are officially assigned to qualified lecturers, defining capacity limits.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="process-card">
+                    <div class="process-number">3</div>
+                    <h4>Scheduling & Report (Modules 8, 10)</h4>
+                    <p>Timetables are generated and comprehensive reports are created for review and export.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System Map -->
+    <section class="container my-5">
+        <h2 class="section-title">End-to-End System Map</h2>
+        <p class="text-center text-muted mb-5">AuraAllocate is a comprehensive solution covering 12 integrated modules, from foundational setup to final reporting.</p>
+        <div class="row">
+            <div class="col-md-3"><div class="process-card"><h5 class="text-info">1. Foundation & Users</h5><small>Authentication, Role-based login, Dashboard, Settings</small></div></div>
+            <div class="col-md-3"><div class="process-card"><h5 class="text-info">2. Institutional Setup</h5><small>Department, Course, Lecturer Mgmt</small></div></div>
+            <div class="col-md-3"><div class="process-card"><h5 class="text-warning">3. Allocation & Scheduling</h5><small>Course Allocation, Student Mgmt, Timetable</small></div></div>
+            <div class="col-md-3"><div class="process-card"><h5 class="text-pink">4. Reporting & Communication</h5><small>Reporting, Communication, Add-Ons</small></div></div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="text-center py-5">
+        <h2>Ready to Transform Your Enrollment?</h2>
+        <p class="text-muted">Book a consultation to see AuraAllocate in action.</p>
+        <button class="btn btn-demo text-white">Get Started Today</button>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 AuraAllocate. All rights reserved.</p>
+        <p><a href="#" class="text-muted mx-3">Privacy Policy</a> <a href="#" class="text-muted mx-3">Terms of Service</a></p>
+    </footer>
+
 </body>
 </html>
