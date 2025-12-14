@@ -13,40 +13,22 @@
         .sidebar-menu a:hover, .sidebar-menu a.active { color: #e2e8f0; background: #1f2937; border-left: 4px solid #f59e0b; }
         .sidebar-menu a.active { background: #1f2937; color: #f59e0b; font-weight: bold; }
         .main-content { margin-left: 280px; padding: 2rem; }
-        .timetable-grid {
-            display: grid;
-            grid-template-columns: 100px repeat(5, 1fr);
-            gap: 10px;
-            margin-top: 2rem;
-        }
-        .time-slot {
+        .no-courses-card {
             background: #1f2937;
-            padding: 1rem;
+            border-radius: 1.5rem;
+            padding: 4rem;
             text-align: center;
-            border-radius: 0.5rem;
-            font-size: 0.9rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            max-width: 600px;
+            margin: 0 auto;
         }
-        .day-header {
-            background: #334155;
-            padding: 1rem;
-            text-align: center;
-            font-weight: bold;
-            border-radius: 0.5rem;
+        .no-courses-card h4 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
         }
-        .course-block {
-            background: linear-gradient(to bottom, #7c3aed, #5b21b6);
-            padding: 1rem;
-            border-radius: 0.8rem;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.4);
-            font-size: 0.9rem;
-            min-height: 100px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .empty-slot {
-            background: transparent;
+        .no-courses-card p {
+            font-size: 1.1rem;
+            color: #94a3b8;
         }
     </style>
 </head>
@@ -74,45 +56,27 @@
 
     <div class="main-content">
         <h1>{{ page_title }}</h1>
-        
-        {% if my_courses %}
-            <h3>Fall 2025 Timetable</h3>
-            <div class="timetable-grid">
-                <!-- Header -->
-                <div></div> <!-- Empty corner -->
-                <div class="day-header">Monday</div>
-                <div class="day-header">Tuesday</div>
-                <div class="day-header">Wednesday</div>
-                <div class="day-header">Thursday</div>
-                <div class="day-header">Friday</div>
 
-                <!-- Time slots (you can expand this later) -->
-                <div class="time-slot">9:00 - 11:00</div>
-                {% for day in "MTWTF" %}
-                    <div class="course-block empty-slot">
-                        <!-- In future: match course.schedule to time/day -->
-                        {% for enrollment in my_courses %}
-                            {% if enrollment.course.schedule|lower|slice:3|upper == day %}
-                                <strong>{{ enrollment.course.code }}</strong><br>
-                                {{ enrollment.course.title }}<br>
-                                <small>{{ enrollment.course.lecturer.full_name|default:"TBD" }}</small>
-                            {% endif %}
-                        {% endfor %}
+        {% if my_courses.exists %}
+            <h3>Fall 2025 Timetable</h3>
+            <p>Here are your allocated courses:</p>
+            <div class="row">
+                {% for enrollment in my_courses %}
+                <div class="col-md-6 mb-4">
+                    <div class="card p-4" style="background: #1f2937; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
+                        <h5>{{ enrollment.course.code }} - {{ enrollment.course.title }}</h5>
+                        <p><strong>Lecturer:</strong> {{ enrollment.course.lecturer.full_name|default:"TBD" }}</p>
+                        <p><strong>Schedule:</strong> {{ enrollment.course.schedule|default:"TBD" }}</p>
+                        <p><strong>Department:</strong> {{ enrollment.course.department }}</p>
                     </div>
-                {% endfor %}
-                
-                <!-- Add more time rows as needed -->
-                <div class="time-slot">11:00 - 13:00</div>
-                {% for day in "MTWTF" %}
-                    <div class="course-block empty-slot">
-                        <!-- Future logic -->
-                    </div>
+                </div>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="card p-5 text-center" style="background: #1f2937; border-radius: 1rem;">
+            <div class="no-courses-card">
                 <h4>No courses allocated yet</h4>
-                <p>Your timetable will appear here after the allocation run.</p>
+                <p>Your timetable will appear here after the allocation run is complete.</p>
+                <p class="mt-3">Make sure to submit your course preferences before the deadline!</p>
             </div>
         {% endif %}
     </div>
