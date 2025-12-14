@@ -14,4 +14,5 @@ urlpatterns = [
     path('profile/', views.profile_settings, name='profile_settings'), 
     path('lecturer/preferences/', views.lecturer_preferences, name='lecturer_preferences'),
     path('lecturer/allocation/', views.lecturer_allocation, name='lecturer_allocation'),
+    path('admin/allocation-run/', views.admin_allocation_run, name='admin_allocation_run'),
 ]

@@ -60,7 +60,7 @@ class CustomLoginView(LoginView):
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Course, Enrollment, Preference
+from .models import Course, Enrollment, Preference , User 
 @login_required
 def dashboard(request):
     if request.user.role == 'student':
@@ -213,6 +213,56 @@ def lecturer_allocation(request):
         'page_title': 'Allocation Results',
     }
     return render(request, 'allocations/lecturer_allocation.html', context)   
+
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import F
+
+@staff_member_required
+def admin_allocation_run(request):
+    if request.method == 'POST':
+        # Clear previous allocation
+        Enrollment.objects.all().delete()
+        Course.objects.all().update(enrolled_count=0)
+
+        # Get all preferences, ordered by student then rank
+        preferences = Preference.objects.all().order_by('student', 'rank')
+
+        # Process each preference in order
+        for pref in preferences:
+            course = pref.course
+            if course.available_slots() > 0:
+                # Approve if space
+                Enrollment.objects.create(
+                    student=pref.student,
+                    course=course,
+                    status='approved'
+                )
+                course.enrolled_count = F('enrolled_count') + 1
+                course.save()
+            else:
+                # Waitlist if full
+                Enrollment.objects.create(
+                    student=pref.student,
+                    course=course,
+                    status='waitlisted'
+                )
+
+        messages.success(request, "Allocation run completed successfully! Courses assigned based on student preferences and capacity.")
+        return redirect('admin_allocation_run')
+
+    # GET request - show the panel
+    total_students = User.objects.filter(role='student').count()
+    total_courses = Course.objects.count()
+    total_preferences = Preference.objects.count()
+
+    context = {
+        'page_title': 'Admin - Run Allocation',
+        'total_students': total_students,
+        'total_courses': total_courses,
+        'total_preferences': total_preferences,
+    }
+    return render(request, 'allocations/admin_allocation_run.html', context)
     
     
     
