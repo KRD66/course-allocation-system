@@ -28,16 +28,14 @@ def register(request):
 
 
 
-
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 
 class CustomLoginView(LoginView):
-    template_name = 'allocations/login.html'
+    template_name = 'allocations/login.html'  # ← Points to our custom template
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        # Redirect based on role after login
         if self.request.user.role == 'student':
             return reverse_lazy('dashboard')
         elif self.request.user.role == 'lecturer':
