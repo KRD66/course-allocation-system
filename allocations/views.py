@@ -60,8 +60,7 @@ class CustomLoginView(LoginView):
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Course, Enrollment
-
+from .models import Course, Enrollment, Preference
 @login_required
 def dashboard(request):
     if request.user.role == 'student':
@@ -83,20 +82,44 @@ def dashboard(request):
         messages.error(request, "Invalid user role.")
         return redirect('home')
     
-    
 @login_required
 def submit_preferences(request):
     if request.user.role != 'student':
         messages.error(request, "Access denied.")
         return redirect('dashboard')
-    
+
+    # Get all available courses
     courses = Course.objects.all()
-    # In future: load saved preferences if any
+
+    # Get saved preferences for this student
+    saved_preferences = Preference.objects.filter(student=request.user).order_by('rank')
+
+    # Get IDs of ranked courses to exclude from available list
+    ranked_course_ids = list(saved_preferences.values_list('course_id', flat=True))
+
+    if request.method == 'POST':
+        # Delete old preferences
+        Preference.objects.filter(student=request.user).delete()
+        # Save new ranked order
+        order = request.POST.getlist('order[]')
+        rank = 1
+        for course_id in order:
+            Preference.objects.create(
+                student=request.user,
+                course_id=course_id,
+                rank=rank
+            )
+            rank += 1
+        messages.success(request, "Your preferences have been saved!")
+        return redirect('submit_preferences')
+
     context = {
         'courses': courses,
+        'saved_preferences': saved_preferences,
+        'ranked_course_ids': ranked_course_ids,
         'page_title': 'Submit Course Preferences',
     }
-    return render(request, 'allocations/submit_preferences.html', context)
+    return render(request, 'allocations/submit_preferences.html', context)    
 
 
 @login_required

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }} - AuraAllocate</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         body { background: #0a0e17; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; margin: 0; }
         .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: #111827; padding-top: 2rem; box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5); z-index: 1000; }
@@ -13,21 +14,34 @@
         .sidebar-menu a:hover, .sidebar-menu a.active { color: #e2e8f0; background: #1f2937; border-left: 4px solid #f59e0b; }
         .sidebar-menu a.active { background: #1f2937; color: #f59e0b; font-weight: bold; }
         .main-content { margin-left: 280px; padding: 2rem; }
-        .course-item { background: #1f2937; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; cursor: move; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
-        .course-item:hover { transform: translateY(-5px); }
-        .btn-preferences {
-            background: linear-gradient(to right, #a78bfa, #7c3aed);
-            border: none;
-            border-radius: 50px;
-            padding: 1rem 3rem;
-            font-size: 1.2rem;
-            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.4);
+        .preference-container { max-width: 900px; margin: 0 auto; }
+        .ranked-list { background: #1f2937; border-radius: 1rem; padding: 1.5rem; min-height: 300px; border: 2px dashed #4b5563; }
+        .available-courses { background: #1f2937; border-radius: 1rem; padding: 1.5rem; min-height: 200px; }
+        .course-item { 
+            background: #334155; border-radius: 1rem; padding: 1.2rem; margin: 0.8rem 0; 
+            cursor: grab; box-shadow: 0 5px 15px rgba(0,0,0,0.4); transition: all 0.3s;
+            border-left: 5px solid #a78bfa;
+            display: flex; align-items: center;
         }
+        .course-item:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(167,139,250,0.4); }
+        .course-item:active { cursor: grabbing; }
+        .rank-number { 
+            display: inline-block; width: 40px; height: 40px; background: #a78bfa; 
+            color: white; border-radius: 50%; text-align: center; line-height: 40px; 
+            font-weight: bold; margin-right: 1rem; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .btn-save { 
+            background: linear-gradient(to right, #a78bfa, #7c3aed); 
+            border: none; border-radius: 50px; padding: 1rem 3rem; font-size: 1.2rem;
+            box-shadow: 0 10px 30px rgba(167,139,250,0.4);
+        }
+        .btn-save:hover { transform: translateY(-3px); }
+        .empty-message { text-align: center; color: #94a3b8; padding: 3rem; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
-    <!-- Working Sidebar with correct links -->
+    <!-- Working Sidebar -->
     <div class="sidebar">
         <div class="sidebar-brand">AuraAllocate</div>
         <small class="text-muted d-block text-center mb-3">Student Portal</small>
@@ -48,21 +62,103 @@
     </div>
 
     <div class="main-content">
-        <h1>{{ page_title }}</h1>
-        <p>Drag and drop to rank your preferred courses (1 = highest priority)</p>
-        
-        <div id="preference-list">
-            {% for course in courses %}
-            <div class="course-item" data-id="{{ course.id }}">
-                <strong>{{ course.code }} - {{ course.title }}</strong><br>
-                <small>{{ course.department }} | Lecturer: {{ course.lecturer.full_name|default:"TBD" }} | {{ course.schedule }}</small>
-            </div>
-            {% empty %}
-            <p>No courses available for preference submission.</p>
-            {% endfor %}
-        </div>
+        <div class="preference-container">
+            <h1>{{ page_title }}</h1>
+            <p class="mb-4">Drag courses from below into the ranked list. <strong>Top = highest priority</strong></p>
 
-        <button class="btn btn-preferences text-white mt-4">Save Preferences</button>
+            <!-- Ranked Preferences -->
+            <h4>Your Ranked Preferences</h4>
+            <div class="ranked-list mb-5" id="ranked-list">
+                {% for pref in saved_preferences %}
+                <div class="course-item" data-id="{{ pref.course.id }}">
+                    <span class="rank-number">{{ forloop.counter }}</span>
+                    <div>
+                        <strong>{{ pref.course.code }} - {{ pref.course.title }}</strong><br>
+                        <small>{{ pref.course.department }} | {{ pref.course.schedule }} | {{ pref.course.lecturer.full_name|default:"TBD" }}</small>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-message">Drag courses here to rank them</div>
+                {% endfor %}
+            </div>
+
+            <!-- Available Courses -->
+            <h4>Available Courses</h4>
+            <div class="available-courses" id="available-courses">
+                {% for course in courses %}
+                    {% if course.id not in ranked_course_ids %}
+                    <div class="course-item" data-id="{{ course.id }}">
+                        <div>
+                            <strong>{{ course.code }} - {{ course.title }}</strong><br>
+                            <small>{{ course.department }} | {{ course.schedule }} | {{ course.lecturer.full_name|default:"TBD" }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                {% if not courses %}
+                <div class="empty-message">No courses available yet</div>
+                {% endif %}
+            </div>
+
+            <!-- Save Form -->
+            <form method="post" id="preference-form">
+                {% csrf_token %}
+                <div id="order-inputs"></div>
+                <button type="submit" class="btn btn-save text-white mt-5">Save My Preferences</button>
+            </form>
+        </div>
     </div>
+
+    <script>
+        // Make both lists sortable and allow dragging between them
+        const rankedList = document.getElementById('ranked-list');
+        const availableList = document.getElementById('available-courses');
+        const orderInputs = document.getElementById('order-inputs');
+
+        // Ranked list - main sorting
+        new Sortable(rankedList, {
+            group: 'shared',
+            animation: 150,
+            ghostClass: 'bg-dark',
+            onEnd: updateOrder
+        });
+
+        // Available courses - can drag to ranked list
+        new Sortable(availableList, {
+            group: 'shared',
+            animation: 150,
+            ghostClass: 'bg-dark',
+            onEnd: updateOrder
+        });
+
+        function updateOrder() {
+            const items = rankedList.querySelectorAll('.course-item');
+            orderInputs.innerHTML = '';  // Clear old inputs
+            
+            items.forEach((item, index) => {
+                // Update rank number
+                let rankNumber = item.querySelector('.rank-number');
+                if (!rankNumber) {
+                    rankNumber = document.createElement('span');
+                    rankNumber.className = 'rank-number';
+                    item.insertBefore(rankNumber, item.firstChild);
+                }
+                rankNumber.textContent = index + 1;
+
+                // Add hidden input for form submission
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'order[]';
+                input.value = item.dataset.id;
+                orderInputs.appendChild(input);
+            });
+
+            // Remove rank number from available courses
+            availableList.querySelectorAll('.rank-number').forEach(el => el.remove());
+        }
+
+        // Initial update on page load
+        updateOrder();
+    </script>
 </body>
 </html>

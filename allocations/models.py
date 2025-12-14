@@ -49,3 +49,15 @@ class Enrollment(models.Model):
     class Meta:
         unique_together = ('student', 'course')
         
+ 
+class Preference(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    rank = models.PositiveIntegerField()  # 1 = highest priority
+
+    class Meta:
+        unique_together = ('student', 'course')
+        ordering = ['rank']
+
+    def __str__(self):
+        return f"{self.student} → {self.course} (Rank {self.rank})"        
