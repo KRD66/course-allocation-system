@@ -128,5 +128,4 @@ AUTH_USER_MODEL = 'allocations.User'
 
 
 LOGIN_REDIRECT_URL = '/dashboard/'
-LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
