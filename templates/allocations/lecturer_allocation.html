@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - AuraAllocate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #0a0e17; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: #111827; padding-top: 2rem; box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5); z-index: 1000; }
+        .sidebar-brand { font-size: 1.8rem; font-weight: 800; background: linear-gradient(to right, #67e8f9, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; margin-bottom: 2rem; }
+        .sidebar-menu a { display: block; padding: 1rem 2rem; color: #9ca3af; text-decoration: none; border-left: 4px solid transparent; transition: all 0.3s; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { color: #e2e8f0; background: #1f2937; border-left: 4px solid #f59e0b; }
+        .sidebar-menu a.active { background: #1f2937; color: #f59e0b; font-weight: bold; }
+        .main-content { margin-left: 280px; padding: 2rem; }
+        .course-card { background: #1f2937; border-radius: 1rem; padding: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">AuraAllocate</div>
+        <small class="text-muted d-block text-center mb-3">Lecturer Portal</small>
+        
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}">My Courses</a>
+            <a href="{% url 'lecturer_preferences' %}">Student Preferences</a>
+            <a href="{% url 'lecturer_allocation' %}" class="active">Allocation Results</a>
+            <hr style="border-color: #374151; margin: 2rem 0;">
+            <a href="#">Profile</a>
+        </div>
+        
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger" 
+           style="position: absolute; bottom: 2rem; left: 2rem; width: calc(280px - 4rem);">
+           Log Out
+        </a>
+    </div>
+
+    <div class="main-content">
+        <h1>{{ page_title }}</h1>
+        <p>Final approved students for your courses after allocation.</p>
+
+        {% if my_courses %}
+            {% for course in my_courses %}
+            <div class="course-card">
+                <h4>{{ course.code }} - {{ course.title }}</h4>
+                <p><strong>Enrolled:</strong> {{ course.enrolled_count }} / {{ course.capacity }}</p>
+                
+                <h5>Approved Students</h5>
+                <ul class="list-group">
+                    {% for enrollment in course.approved_students %}
+                    <li class="list-group-item bg-dark text-light border-secondary">
+                        {{ enrollment.student.full_name|default:enrollment.student.username }}
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item bg-dark text-muted">No students approved yet</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card p-5 text-center" style="background: #1f2937; border-radius: 1rem;">
+                <h4>No courses assigned</h4>
+                <p>You are not currently teaching any courses.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

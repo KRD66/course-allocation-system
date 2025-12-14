@@ -11,5 +11,7 @@ urlpatterns = [
     path('preferences/', views.submit_preferences, name='submit_preferences'),  
     path('timetable/', views.view_timetable, name='view_timetable'),  
     path('announcements/', views.announcements, name='announcements'),  
-    path('profile/', views.profile_settings, name='profile_settings'),  
+    path('profile/', views.profile_settings, name='profile_settings'), 
+    path('lecturer/preferences/', views.lecturer_preferences, name='lecturer_preferences'),
+    path('lecturer/allocation/', views.lecturer_allocation, name='lecturer_allocation'),
 ]

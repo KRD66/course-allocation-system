@@ -67,20 +67,29 @@ def dashboard(request):
         # Student dashboard
         courses = Course.objects.all()
         my_enrollments = Enrollment.objects.filter(student=request.user).order_by('-requested_at')
+        saved_preferences = Preference.objects.filter(student=request.user).order_by('rank')
+        ranked_course_ids = list(saved_preferences.values_list('course_id', flat=True))
         return render(request, 'allocations/student_dashboard.html', {
             'courses': courses,
             'my_enrollments': my_enrollments,
+            'saved_preferences': saved_preferences,
+            'ranked_course_ids': ranked_course_ids,
         })
+    
     elif request.user.role == 'lecturer':
-        my_courses = Course.objects.filter(lecturer=request.user)
+        # Lecturer dashboard
+        my_courses = Course.objects.filter(lecturer=request.user).prefetch_related('enrollment_set')
         return render(request, 'allocations/lecturer_dashboard.html', {
             'my_courses': my_courses,
+            'page_title': 'My Courses',
         })
+    
     elif request.user.role == 'admin':
         return redirect('admin:index')
+    
     else:
         messages.error(request, "Invalid user role.")
-        return redirect('home')
+        return redirect('home')   
     
 @login_required
 def submit_preferences(request):
@@ -172,7 +181,38 @@ def profile_settings(request):
     context = {
         'page_title': 'Profile Settings',
     }
-    return render(request, 'allocations/profile_settings.html', context)    
+    return render(request, 'allocations/profile_settings.html', context) 
+
+@login_required
+def lecturer_preferences(request):
+    if request.user.role != 'lecturer':
+        return redirect('dashboard')
+    
+    my_courses = Course.objects.filter(lecturer=request.user)
+    preferences = Preference.objects.filter(course__in=my_courses).select_related('student', 'course').order_by('course', 'rank')
+    
+    context = {
+        'preferences': preferences,
+        'page_title': 'Student Preferences',
+    }
+    return render(request, 'allocations/lecturer_preferences.html', context)
+@login_required
+def lecturer_allocation(request):
+    if request.user.role != 'lecturer':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+    
+    my_courses = Course.objects.filter(lecturer=request.user).prefetch_related('enrollment_set')
+    
+    # Add approved students to each course
+    for course in my_courses:
+        course.approved_students = course.enrollment_set.filter(status='approved')
+    
+    context = {
+        'my_courses': my_courses,
+        'page_title': 'Allocation Results',
+    }
+    return render(request, 'allocations/lecturer_allocation.html', context)   
     
     
     
