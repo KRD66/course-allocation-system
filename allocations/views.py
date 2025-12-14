@@ -84,6 +84,76 @@ def dashboard(request):
         return redirect('home')
     
     
+@login_required
+def submit_preferences(request):
+    if request.user.role != 'student':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+    
+    courses = Course.objects.all()
+    # In future: load saved preferences if any
+    context = {
+        'courses': courses,
+        'page_title': 'Submit Course Preferences',
+    }
+    return render(request, 'allocations/submit_preferences.html', context)
+
+
+@login_required
+def view_timetable(request):
+    if request.user.role != 'student':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+    
+    # Get only approved enrollments (real allocated courses)
+    my_courses = Enrollment.objects.filter(
+        student=request.user,
+        status='approved'
+    ).select_related('course')
+    
+    context = {
+        'my_courses': my_courses,
+        'page_title': 'My Timetable',
+    }
+    return render(request, 'allocations/view_timetable.html', context)
+
+
+@login_required
+def announcements(request):
+    if request.user.role != 'student':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+    
+    # Placeholder announcements
+    announcements_list = [
+        {'title': 'Allocation Run Scheduled', 'date': 'Dec 10, 2025', 'body': 'The next allocation run is scheduled for December 20th.'},
+        {'title': 'Preference Deadline Extended', 'date': 'Dec 5, 2025', 'body': 'Preference submission deadline extended to December 18th.'},
+    ]
+    context = {
+        'announcements': announcements_list,
+        'page_title': 'Announcements',
+    }
+    return render(request, 'allocations/announcements.html', context)
+
+@login_required
+def profile_settings(request):
+    if request.method == 'POST':
+        user = request.user
+        user.full_name = request.POST.get('full_name', user.full_name)
+        user.email = request.POST.get('email', user.email)
+        if request.POST.get('new_password'):
+            user.set_password(request.POST.get('new_password'))
+        user.save()
+        messages.success(request, "Profile updated successfully!")
+    
+    context = {
+        'page_title': 'Profile Settings',
+    }
+    return render(request, 'allocations/profile_settings.html', context)    
+    
+    
+    
+    
     
     
 from django.contrib.auth import logout

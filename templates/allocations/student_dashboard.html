@@ -49,6 +49,7 @@
         .sidebar-menu a.active {
             background: #1f2937;
             color: #f59e0b;
+            font-weight: bold;
         }
         .main-content {
             margin-left: 280px;
@@ -124,18 +125,19 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
+
+    <!-- Sidebar with correct links and active highlighting -->
     <div class="sidebar">
         <div class="sidebar-brand">AuraAllocate</div>
         <small class="text-muted d-block text-center mb-3">Student Portal</small>
         
         <div class="sidebar-menu">
-            <a href="#" class="active"><strong>Dashboard Home</strong></a>
-            <a href="#">Submit Preferences (7)</a>
-            <a href="#">View My Timetable (8)</a>
+            <a href="{% url 'dashboard' %}" class="active"><strong>Dashboard Home</strong></a>
+            <a href="{% url 'submit_preferences' %}">Submit Preferences</a>
+            <a href="{% url 'view_timetable' %}">View My Timetable</a>
             <hr style="border-color: #374151; margin: 2rem 0;">
-            <a href="#">Profile Settings (9)</a>
-            <a href="#">Announcements (11)</a>
+            <a href="{% url 'profile_settings' %}">Profile Settings</a>
+            <a href="{% url 'announcements' %}">Announcements</a>
         </div>
         
         <a href="{% url 'logout' %}" class="btn btn-outline-danger logout-btn">Log Out</a>
@@ -187,14 +189,14 @@
                 <div class="action-card">
                     <h3>Course Preference Submission</h3>
                     <p>Review or update your prioritized list of courses for the upcoming semester.</p>
-                    <a href="#" class="btn btn-preferences text-white">Submit/Edit Preferences</a>
+                    <a href="{% url 'submit_preferences' %}" class="btn btn-preferences text-white">Submit/Edit Preferences</a>
                 </div>
             </div>
             <div class="col-md-6 mb-4">
                 <div class="action-card">
                     <h3>View My Timetable</h3>
                     <p>Access your finalized schedule after the allocation is complete.</p>
-                    <a href="#" class="btn btn-timetable text-white">View Final Timetable</a>
+                    <a href="{% url 'view_timetable' %}" class="btn btn-timetable text-white">View Final Timetable</a>
                 </div>
             </div>
         </div>
