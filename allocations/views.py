@@ -43,3 +43,33 @@ class CustomLoginView(LoginView):
         elif self.request.user.role == 'admin':
             return '/admin/'
         return reverse_lazy('home')
+    
+    
+    
+    
+    
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Course, Enrollment
+
+@login_required
+def dashboard(request):
+    if request.user.role == 'student':
+        # Student dashboard
+        courses = Course.objects.all()
+        my_enrollments = Enrollment.objects.filter(student=request.user).order_by('-requested_at')
+        return render(request, 'allocations/student_dashboard.html', {
+            'courses': courses,
+            'my_enrollments': my_enrollments,
+        })
+    elif request.user.role == 'lecturer':
+        my_courses = Course.objects.filter(lecturer=request.user)
+        return render(request, 'allocations/lecturer_dashboard.html', {
+            'my_courses': my_courses,
+        })
+    elif request.user.role == 'admin':
+        return redirect('admin:index')
+    else:
+        messages.error(request, "Invalid user role.")
+        return redirect('home')
