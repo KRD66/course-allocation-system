@@ -38,14 +38,19 @@
         .nav-link:hover {
             color: #67e8f9 !important;
         }
-        .btn-student {
+        .btn-register {
             background: linear-gradient(to right, #a78bfa, #7c3aed);
             border: none;
             border-radius: 50px;
             padding: 0.6rem 1.8rem;
             font-weight: 600;
+            box-shadow: 0 6px 20px rgba(167, 139, 250, 0.4);
         }
-        .btn-admin {
+        .btn-register:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.6);
+        }
+        .btn-login {
             border: 2px solid #14b8a6;
             color: #14b8a6;
             background: transparent;
@@ -54,9 +59,11 @@
             font-weight: 600;
             margin-left: 1rem;
         }
-        .btn-admin:hover {
+        .btn-login:hover {
             background: #14b8a6;
             color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(20, 184, 166, 0.4);
         }
         .hero {
             padding-top: 120px;
@@ -145,7 +152,7 @@
     <!-- Fixed Navbar -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="#">AuraAllocate</a>
+            <a class="navbar-brand" href="{% url 'home' %}">AuraAllocate</a>
             <div class="mx-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="#">Features</a></li>
@@ -154,8 +161,8 @@
                 </ul>
             </div>
             <div>
-                <a href="{% url 'login' %}" class="btn btn-student text-white">Student Login</a>
-                <a href="/admin/" class="btn btn-admin">Admin Portal</a>
+                <a href="{% url 'register' %}" class="btn btn-register text-white">Register</a>
+                <a href="{% url 'login' %}" class="btn btn-login">Login</a>
             </div>
         </div>
     </nav>
